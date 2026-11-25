@@ -4,6 +4,10 @@
 This repository holds the Prolog prediction corpus and the rule stubs for
 Problem Set 4. The assignment manual defines the work and the submission rules.
 
+## The Pair
+Eusef Karl O. Blancada (evolto06)
+Julian Hanns T. Medalla (jtmedalla)
+
 ## Layout
 
 ```text
