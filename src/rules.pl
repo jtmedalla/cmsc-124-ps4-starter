@@ -16,37 +16,52 @@
 %
 % Order matters. X \= Y succeeds only when X and Y are already bound to
 % different things, so put it after the goal that binds them.
-sibling(_, _) :-
-    throw(not_implemented(sibling/2)).
+sibling(X, Y) :-
+    parent(P, X),
+    parent(P, Y),
+    X \= Y.
 
 % cousin(X, Y): a parent of X and a parent of Y are siblings.
-cousin(_, _) :-
-    throw(not_implemented(cousin/2)).
+cousin(X, Y) :-
+    parent(PX, X),
+    parent(PY, Y),
+    sibling(PX, PY).
 
 % descendant(D, A): A is an ancestor of D.
 %
 % Two clauses, the mirror image of ancestor/2 in cases/kb.pl. The base
 % clause reads one parent fact. The recursive clause reads one parent fact
 % and then asks a smaller question.
-descendant(_, _) :-
-    throw(not_implemented(descendant/2)).
+descendant(X, Y) :-
+    parent(Y, X).
+descendant(X, Y) :-
+    parent(Y, Z),
+    descendant(X, Z).
 
 %%% R2 -- lists.
 
 % count_of(X, List, N): X occurs N times in List. N is 0 for the empty
 % list, which is your base case.
-count_of(_, _, _) :-
-    throw(not_implemented(count_of/3)).
+count_of(_, [], 0).
+count_of(X, [X|T], N) :-
+    count_of(X, T, M),
+    N is M+1.
+count_of(X, [H|T], N) :-
+    X \= H,
+    count_of(X, T, N).
 
 % rev(List, Reversed): Reversed holds the elements of List in the other
 % order. Reverse the tail. Then use join/3 to put the head at the end.
-rev(_, _) :-
-    throw(not_implemented(rev/2)).
+rev([], []).
+rev([H|T], Reversed) :-
+    rev(T, Rev),
+    join(Rev, [H], Reversed).
 
 % last_of(List, X): X is the last element of List. The empty list has no
 % last element, so last_of([], X) must fail.
-last_of(_, _) :-
-    throw(not_implemented(last_of/2)).
+last_of([_|T], X) :-
+    last_of(T, X).
+last_of([Y], Y).
 
 %%% R3 -- the graph.
 
@@ -58,5 +73,13 @@ last_of(_, _) :-
 % the cycle a -> b -> c -> a always offers one more edge. Carry the nodes
 % you visited. Refuse to step onto one again. \+ Goal is true when Goal
 % cannot be proved. That is how you say "not yet visited."
-route(_, _, _) :-
-    throw(not_implemented(route/3)).
+route(From, To, Path) :-
+    walk(From, To, [From], Path).
+
+% walk(Here, To, Visited, Path): Path runs from Here to To and steps on no
+% node in Visited. Visited always holds Here, so the walk never turns back.
+walk(To, To, _, [To]).
+walk(Here, To, Visited, [Here|Rest]) :-
+    edge(Here, Next),
+    \+ elem(Next, Visited),
+    walk(Next, To, [Next|Visited], Rest).
